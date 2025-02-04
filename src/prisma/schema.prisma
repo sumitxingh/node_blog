@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int       @id @default(autoincrement())
+  unique_id  String    @unique @default(uuid())
+  email      String    @unique
+  name       String
+  password   String
+  role       Role      @default(USER)
+  posts      Post[]
+  Comment    Comment[]
+  is_active  Boolean   @default(true)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+
+  @@map("user")
+}
+
+model Post {
+  id            Int        @id @default(autoincrement())
+  unique_id     String     @unique @default(uuid())
+  title         String
+  slug          String     @unique
+  content       String
+  excerpt       String?
+  featuredImage String?
+  status        PostStatus @default(DRAFT) // Enum for published status
+  user_id       Int
+  user          User       @relation(fields: [user_id], references: [id])
+  tags          Tag[]
+  Comment       Comment[]
+  Category      Category?  @relation(fields: [category_id], references: [unique_id])
+  category_id   String?
+  is_active     Boolean    @default(true)
+  created_at    DateTime   @default(now())
+  updated_at    DateTime   @updatedAt
+
+  @@map("post")
+}
+
+model Comment {
+  id         Int      @id @default(autoincrement())
+  unique_id  String   @unique @default(uuid())
+  content    String
+  user_id    Int
+  post_id    Int
+  user       User     @relation(fields: [user_id], references: [id])
+  post       Post     @relation(fields: [post_id], references: [id])
+  is_active  Boolean  @default(true)
+  updated_at DateTime @updatedAt
+  created_at DateTime @default(now())
+
+  @@map("comment")
+}
+
+model Tag {
+  id         Int      @id @default(autoincrement())
+  unique_id  String   @unique @default(uuid())
+  name       String   @unique
+  posts      Post[]
+  updated_at DateTime @updatedAt
+  created_at DateTime @default(now())
+}
+
+model Category {
+  id         Int      @id @default(autoincrement())
+  unique_id  String   @unique @default(uuid())
+  name       String   @unique
+  Post       Post[]
+  updated_at DateTime @updatedAt
+  created_at DateTime @default(now())
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
