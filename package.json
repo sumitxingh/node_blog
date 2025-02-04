@@ -4,7 +4,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node dist/server.js",
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc"
   },
   "prisma": {
@@ -25,6 +25,7 @@
     "@types/express": "^5.0.0",
     "@types/node": "^22.13.0",
     "prisma": "^6.3.0",
+    "ts-node-dev": "^2.0.0",
     "typescript": "^5.7.3"
   }
 }
