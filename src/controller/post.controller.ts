@@ -86,6 +86,11 @@ export const getAllPosts = async (req: Request, res: Response) => {
       skip: (page - 1) * limit,
       take: limit,
       orderBy: { created_at: "desc" },
+      omit: {
+        user_id: true,
+        updated_at: true,
+        category_id: true,
+      },
       where: {
         OR: [
           { title: { contains: search, mode: "insensitive" } },
@@ -96,6 +101,59 @@ export const getAllPosts = async (req: Request, res: Response) => {
           },
         ],
       },
+      // include: {
+      //   user: { select: { name: true } },
+      //   tags: {
+      //     select: {
+      //       name: true,
+      //       unique_id: true,
+      //     },
+      //   },
+      //   Category: {
+      //     select: {
+      //       name: true,
+      //       unique_id: true,
+      //     },
+      //   },
+      //   Comment: {
+      //     select: {
+      //       unique_id: true,
+      //       content: true,
+      //       created_at: true,
+      //       user: {
+      //         select: {
+      //           name: true,
+      //         },
+      //       },
+      //     },
+      //   },
+      // },
+    });
+
+    const totalPosts = await prismaService.post.count();
+
+    res.status(200).json({
+      message: "Posts retrieved successfully",
+      data: {
+        posts,
+        total_posts: totalPosts,
+        total_pages: Math.ceil(totalPosts / limit),
+        page_number: page,
+      },
+    });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getPostById = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
+  try {
+    const { id } = req.params;
+    const post = await prismaService.post.findUnique({
+      where: { unique_id: id },
       include: {
         user: { select: { name: true } },
         tags: {
@@ -125,33 +183,6 @@ export const getAllPosts = async (req: Request, res: Response) => {
       },
     });
 
-    const totalPosts = await prismaService.post.count();
-
-    res.status(200).json({
-      message: "Posts retrieved successfully",
-      data: {
-        posts,
-        total_posts: totalPosts,
-        total_pages: Math.ceil(totalPosts / limit),
-        page_number: page,
-      },
-    });
-  } catch (error: any) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-export const getPostById = async (
-  req: Request,
-  res: Response
-): Promise<any> => {
-  try {
-    const { id } = req.params;
-    const post = await prismaService.post.findUnique({
-      where: { unique_id: id },
-      include: { user: true, tags: true, Category: true, Comment: true },
-    });
-
     if (!post) return res.status(404).json({ message: "Post not found" });
 
     res
@@ -165,16 +196,22 @@ export const getPostById = async (
 export const updatePost = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { title, content, status, category_id, tags } = req.body;
+    const { title, content, status, category_id, tags, featured_image } =
+      req.body;
 
     const updatedPost = await prismaService.post.update({
       where: { unique_id: id },
       data: {
         title,
         content,
+        featured_image,
         status,
         category_id,
-        tags: { set: tags.map((tagId: string) => ({ unique_id: tagId })) },
+        tags: tags?.length
+          ? {
+              set: tags.map((tagId: string) => ({ unique_id: tagId })),
+            }
+          : undefined,
       },
     });
 

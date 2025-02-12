@@ -26,3 +26,26 @@ export const postCreateValidation = [
       `Status must be one of: ${Object.values(PostStatus).join(", ")}`
     ),
 ];
+
+export const postUpdateValidation = [
+  body("title").optional({ checkFalsy: true }).isLength({ min: 3 }),
+  body("content").optional({ checkFalsy: true }).isLength({ min: 10 }),
+  body("featured_image")
+    .optional({ checkFalsy: true })
+    .isURL()
+    .withMessage("Featured Image must be a valid URL"),
+  body("category_id")
+    .optional({ checkFalsy: true })
+    .isUUID()
+    .withMessage("Category ID must be a valid UUID"),
+  body("tags")
+    .optional({ checkFalsy: true })
+    .isArray()
+    .withMessage("Tags must be an array"),
+  body("status")
+    .optional({ checkFalsy: true })
+    .isIn(Object.values(PostStatus))
+    .withMessage(
+      `Status must be one of: ${Object.values(PostStatus).join(", ")}`
+    ),
+];
