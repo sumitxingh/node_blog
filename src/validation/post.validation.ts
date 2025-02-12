@@ -4,10 +4,25 @@ import { body } from "express-validator";
 export const postCreateValidation = [
   body("title").isLength({ min: 3 }).withMessage("Title is required"),
   body("content").isLength({ min: 10 }).withMessage("Content is required"),
-  body("excerpt").isLength({ min: 10 }).withMessage("Excerpt is required"),
-  body("featuredImage").isURL().withMessage("Featured Image is required"),
-  body("category_id").isUUID().withMessage("Category is required"),
-  body("tags").isArray({ min: 1 }).withMessage("Tags are required"),
-  body("status").isIn(Object.values(PostStatus)).withMessage("Status is required"),
-  body("user_id").isUUID().withMessage("User is required"),
-]
+  body("excerpt")
+    .optional({ checkFalsy: true })
+    .isString()
+    .withMessage("Excerpt must be a string"),
+  body("featured_image")
+    .optional({ checkFalsy: true })
+    .isURL()
+    .withMessage("Featured Image must be a valid URL"),
+  body("category_id")
+    .optional({ checkFalsy: true })
+    .isUUID()
+    .withMessage("Category ID must be a valid UUID"),
+  body("tags")
+    .optional({ checkFalsy: true })
+    .isArray()
+    .withMessage("Tags must be an array"),
+  body("status")
+    .isIn(Object.values(PostStatus))
+    .withMessage(
+      `Status must be one of: ${Object.values(PostStatus).join(", ")}`
+    ),
+];

@@ -10,23 +10,23 @@ export const createPost = async (req: Request, res: Response): Promise<any> => {
     if (errors.array().length > 0) {
       return res.status(422).json({ errors: errors.array() });
     }
+    const user_id = req.body.user.id;
 
     const {
       title,
       content,
       excerpt,
-      featuredImage,
+      featured_image,
       category_id,
       tags,
       status,
-      user_id,
     } = req.body;
 
     console.log({
       title,
       content,
       excerpt,
-      featuredImage,
+      featured_image,
       category_id,
       tags,
       status,
@@ -38,36 +38,35 @@ export const createPost = async (req: Request, res: Response): Promise<any> => {
     if (exitSlug)
       return res.status(400).json({ message: "Slug should be unique" });
 
-    const category = await prismaService.category.findUnique({
-      where: { unique_id: category_id },
-    });
-    if (!category)
-      return res.status(400).json({ message: "Category not found" });
+    if (category_id) {
+      const category = await prismaService.category.findUnique({
+        where: { unique_id: category_id },
+      });
+      if (!category)
+        return res.status(400).json({ message: "Category not found" });
+    }
 
-    const tagsExist = await prismaService.tag.findMany({
-      where: { unique_id: { in: tags } },
-    });
-    if (tagsExist.length !== tags.length)
-      return res.status(400).json({ message: "Tag not found" });
-
-    // validate user
-    const user = await prismaService.user.findUnique({
-      where: { unique_id: user_id },
-    });
-
-    if (!user) return res.status(400).json({ message: "Invalid user" });
+    if (tags?.length) {
+      const tagsExist = await prismaService.tag.findMany({
+        where: { unique_id: { in: tags } },
+      });
+      if (tagsExist.length !== tags.length)
+        return res.status(400).json({ message: "Tag not found" });
+    }
 
     const newPost = await prismaService.post.create({
       data: {
         title,
         content,
         excerpt,
-        featuredImage,
+        featured_image,
         slug,
         status,
         user_id,
-        category_id,
-        tags: { connect: tags.map((tagId: string) => ({ unique_id: tagId })) },
+        category_id: category_id,
+        tags: tags?.length
+          ? { connect: tags.map((tagId: string) => ({ unique_id: tagId })) }
+          : undefined,
       },
     });
 
