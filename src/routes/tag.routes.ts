@@ -5,6 +5,6 @@ const router = Router();
 
 router.get("/all", getAllTags);
 router.post("/create", createTag);
-router.delete("/delete/:id", deleteTag);
+router.delete("/:id", deleteTag);
 
 export default router;

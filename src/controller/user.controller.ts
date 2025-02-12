@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
-import prismaService from "../prisma";
+
 import config from "../config/config";
 import { validationResult } from "express-validator";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { User } from "@prisma/client";
+import prismaService from "../prisma";
 
 class UserResponse {
   unique_id: string;

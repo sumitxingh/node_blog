@@ -1,9 +1,25 @@
 import { Request, Response } from "express";
-import prismaService from "../prisma/index";
+import prismaService from "../prisma";
 
-export const createComment = async (req: Request, res: Response) => {
+export const createComment = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
   try {
     const { content, user_id, post_id } = req.body;
+    console.log({ content, user_id, post_id });
+    // validate user
+    const user = await prismaService.user.findUnique({
+      where: { unique_id: user_id },
+    });
+
+    if (!user) return res.status(400).json({ message: "Invalid user" });
+
+    const post = await prismaService.post.findUnique({
+      where: { unique_id: post_id },
+    });
+
+    if (!post) return res.status(400).json({ message: "Post not found" });
 
     const newComment = await prismaService.comment.create({
       data: { content, user_id, post_id },
@@ -22,7 +38,7 @@ export const getCommentsByPost = async (req: Request, res: Response) => {
     const { post_id } = req.params;
 
     const comments = await prismaService.comment.findMany({
-      where: { post_id: Number(post_id) },
+      where: { post_id: post_id },
       include: { user: { select: { name: true } } },
     });
 

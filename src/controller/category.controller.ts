@@ -1,9 +1,16 @@
 import { Request, Response } from "express";
-import prismaService from "../prisma/index";
+import prismaService from "../prisma";
+
 
 export const createCategory = async (req: Request, res: Response) => {
   try {
     const { name } = req.body;
+
+    const exitingCategory = await prismaService.category.findUnique({
+      where: { name }
+    })
+
+    if(exitingCategory) throw new Error("Category already exists")
 
     const newCategory = await prismaService.category.create({
       data: { name },
@@ -32,6 +39,12 @@ export const getAllCategories = async (req: Request, res: Response) => {
 export const deleteCategory = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+
+    const getCategory = await prismaService.category.findUnique({
+      where: { unique_id: id }
+    })
+
+    if(!getCategory) throw new Error("Category not found")
 
     await prismaService.category.delete({ where: { unique_id: id } });
 
