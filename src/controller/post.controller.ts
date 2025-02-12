@@ -80,8 +80,22 @@ export const createPost = async (req: Request, res: Response): Promise<any> => {
 
 export const getAllPosts = async (req: Request, res: Response) => {
   try {
+    const { search, page = 1, limit = 10 } = req.body;
+
     const posts = await prismaService.post.findMany({
+      skip: (page - 1) * limit,
+      take: limit,
       orderBy: { created_at: "desc" },
+      where: {
+        OR: [
+          { title: { contains: search, mode: "insensitive" } },
+          { content: { contains: search, mode: "insensitive" } },
+          { Category: { name: { contains: search, mode: "insensitive" } } },
+          {
+            tags: { some: { name: { contains: search, mode: "insensitive" } } },
+          },
+        ],
+      },
       include: {
         user: { select: { name: true } },
         tags: {
@@ -111,9 +125,17 @@ export const getAllPosts = async (req: Request, res: Response) => {
       },
     });
 
-    res
-      .status(200)
-      .json({ message: "Posts retrieved successfully", data: posts });
+    const totalPosts = await prismaService.post.count();
+
+    res.status(200).json({
+      message: "Posts retrieved successfully",
+      data: {
+        posts,
+        total_posts: totalPosts,
+        total_pages: Math.ceil(totalPosts / limit),
+        page_number: page,
+      },
+    });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
