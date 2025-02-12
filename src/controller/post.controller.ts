@@ -38,14 +38,12 @@ export const createPost = async (req: Request, res: Response): Promise<any> => {
     if (exitSlug)
       return res.status(400).json({ message: "Slug should be unique" });
 
-    // validate category
     const category = await prismaService.category.findUnique({
       where: { unique_id: category_id },
     });
     if (!category)
       return res.status(400).json({ message: "Category not found" });
 
-    // validate tags
     const tagsExist = await prismaService.tag.findMany({
       where: { unique_id: { in: tags } },
     });
