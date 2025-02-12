@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import config from "./config/config";
 import routes from "./routes/index";
+import logRequest from "./middleware/loggerMiddleware";
 
 const PORT = config.PORT;
 
@@ -8,6 +9,7 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(logRequest);
 
 app.use("/api", routes);
 
