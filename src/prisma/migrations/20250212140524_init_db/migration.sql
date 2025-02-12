@@ -29,7 +29,7 @@ CREATE TABLE "post" (
     "excerpt" TEXT,
     "featuredImage" TEXT,
     "status" "PostStatus" NOT NULL DEFAULT 'DRAFT',
-    "user_id" INTEGER NOT NULL,
+    "user_id" TEXT NOT NULL,
     "category_id" TEXT,
     "is_active" BOOLEAN NOT NULL DEFAULT true,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -43,8 +43,8 @@ CREATE TABLE "comment" (
     "id" SERIAL NOT NULL,
     "unique_id" TEXT NOT NULL,
     "content" TEXT NOT NULL,
-    "user_id" INTEGER NOT NULL,
-    "post_id" INTEGER NOT NULL,
+    "user_id" TEXT NOT NULL,
+    "post_id" TEXT NOT NULL,
     "is_active" BOOLEAN NOT NULL DEFAULT true,
     "updated_at" TIMESTAMP(3) NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -53,25 +53,25 @@ CREATE TABLE "comment" (
 );
 
 -- CreateTable
-CREATE TABLE "Tag" (
+CREATE TABLE "tag" (
     "id" SERIAL NOT NULL,
     "unique_id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "updated_at" TIMESTAMP(3) NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "Tag_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "tag_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "Category" (
+CREATE TABLE "category" (
     "id" SERIAL NOT NULL,
     "unique_id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "updated_at" TIMESTAMP(3) NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "Category_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "category_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -98,34 +98,34 @@ CREATE UNIQUE INDEX "post_slug_key" ON "post"("slug");
 CREATE UNIQUE INDEX "comment_unique_id_key" ON "comment"("unique_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Tag_unique_id_key" ON "Tag"("unique_id");
+CREATE UNIQUE INDEX "tag_unique_id_key" ON "tag"("unique_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Tag_name_key" ON "Tag"("name");
+CREATE UNIQUE INDEX "tag_name_key" ON "tag"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Category_unique_id_key" ON "Category"("unique_id");
+CREATE UNIQUE INDEX "category_unique_id_key" ON "category"("unique_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Category_name_key" ON "Category"("name");
+CREATE UNIQUE INDEX "category_name_key" ON "category"("name");
 
 -- CreateIndex
 CREATE INDEX "_PostToTag_B_index" ON "_PostToTag"("B");
 
 -- AddForeignKey
-ALTER TABLE "post" ADD CONSTRAINT "post_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "post" ADD CONSTRAINT "post_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("unique_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "post" ADD CONSTRAINT "post_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "Category"("unique_id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "post" ADD CONSTRAINT "post_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "category"("unique_id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "comment" ADD CONSTRAINT "comment_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "comment" ADD CONSTRAINT "comment_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user"("unique_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "comment" ADD CONSTRAINT "comment_post_id_fkey" FOREIGN KEY ("post_id") REFERENCES "post"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "comment" ADD CONSTRAINT "comment_post_id_fkey" FOREIGN KEY ("post_id") REFERENCES "post"("unique_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_PostToTag" ADD CONSTRAINT "_PostToTag_A_fkey" FOREIGN KEY ("A") REFERENCES "post"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "_PostToTag" ADD CONSTRAINT "_PostToTag_B_fkey" FOREIGN KEY ("B") REFERENCES "Tag"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "_PostToTag" ADD CONSTRAINT "_PostToTag_B_fkey" FOREIGN KEY ("B") REFERENCES "tag"("id") ON DELETE CASCADE ON UPDATE CASCADE;
