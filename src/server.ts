@@ -2,11 +2,17 @@ import express, { Request, Response } from "express";
 import config from "./config/config";
 import routes from "./routes/index";
 import logRequest from "./middleware/loggerMiddleware";
+import cors from "cors";
 
 const PORT = config.PORT;
 
 const app = express();
 
+app.use(
+  cors({
+    origin: "*", 
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(logRequest);
