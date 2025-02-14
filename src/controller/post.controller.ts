@@ -91,13 +91,13 @@ export const getAllPosts = async (req: Request, res: Response) => {
         updated_at: true,
         category_id: true,
       },
-      where: {
-        OR: [
-          { title: { contains: search, mode: "insensitive" } },
-          { content: { contains: search, mode: "insensitive" } },
-          { Category: { name: { contains: search, mode: "insensitive" } } },
-        ],
-      },
+      // where: {
+      //   OR: [
+      //     { title: { contains: search, mode: "insensitive" } },
+      //     { content: { contains: search, mode: "insensitive" } },
+      //     { Category: { name: { contains: search, mode: "insensitive" } } },
+      //   ],
+      // },
       // include: {
       //   user: { select: { name: true } },
       //   tags: {
@@ -128,13 +128,13 @@ export const getAllPosts = async (req: Request, res: Response) => {
     });
 
     const totalPosts = await prismaService.post.count({
-      where: {
-        OR: [
-          { title: { contains: search, mode: "insensitive" } },
-          { content: { contains: search, mode: "insensitive" } },
-          { Category: { name: { contains: search, mode: "insensitive" } } },
-        ],
-      },
+      // where: {
+      //   OR: [
+      //     { title: { contains: search, mode: "insensitive" } },
+      //     { content: { contains: search, mode: "insensitive" } },
+      //     { Category: { name: { contains: search, mode: "insensitive" } } },
+      //   ],
+      // },
     });
 
     res.status(200).json({
