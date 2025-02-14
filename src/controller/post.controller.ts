@@ -96,9 +96,6 @@ export const getAllPosts = async (req: Request, res: Response) => {
           { title: { contains: search, mode: "insensitive" } },
           { content: { contains: search, mode: "insensitive" } },
           { Category: { name: { contains: search, mode: "insensitive" } } },
-          {
-            tags: { some: { name: { contains: search, mode: "insensitive" } } },
-          },
         ],
       },
       // include: {
@@ -130,7 +127,15 @@ export const getAllPosts = async (req: Request, res: Response) => {
       // },
     });
 
-    const totalPosts = await prismaService.post.count();
+    const totalPosts = await prismaService.post.count({
+      where: {
+        OR: [
+          { title: { contains: search, mode: "insensitive" } },
+          { content: { contains: search, mode: "insensitive" } },
+          { Category: { name: { contains: search, mode: "insensitive" } } },
+        ],
+      },
+    });
 
     res.status(200).json({
       message: "Posts retrieved successfully",
