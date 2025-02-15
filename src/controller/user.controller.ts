@@ -19,6 +19,24 @@ class UserResponse {
   }
 }
 
+const generateToken = (user: User) => {
+  const refreshToken = jwt.sign({
+    id: user.unique_id 
+  }, config.REFRESH_JWT_SECRET,
+    { expiresIn: '7d' })
+
+  const accesToken = jwt.sign({
+    id: user.unique_id,
+    email: user.email
+  }, config.JWT_SECRET,
+    { expiresIn: '1h' })
+  
+  return {
+    acces_token: accesToken,
+    refresh_token: refreshToken
+  }
+}
+
 const login = async (req: Request, res: Response): Promise<any> => {
   try {
     const errors = validationResult(req);
@@ -46,16 +64,15 @@ const login = async (req: Request, res: Response): Promise<any> => {
 
     const userResponse = new UserResponse(existingUser);
 
-    const token = jwt.sign(
-      { id: existingUser.unique_id, email: existingUser.email },
-      config.JWT_SECRET || "",
-      { expiresIn: "1h" }
-    );
+    const token = generateToken(existingUser)
+    // res.cookie("refresh_token", token.refresh_token, { httpOnly: true });
+    // res.cookie("acces_token", token.acces_token, { httpOnly: true });
+
 
     res.status(200).json({
       message: "Login successful",
-      token,
-      data: userResponse,
+      token: token,
+      user: userResponse,
     });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
@@ -120,4 +137,42 @@ const getAllUser = async (req: Request, res: Response): Promise<any> => {
   }
 };
 
-export { login, register, getAllUser };
+const refreshToken = async (req: Request, res: Response): Promise<any> => {
+  try {
+    let refreshToken = req.headers['refresh_token'] as string | undefined;
+
+    if (!refreshToken) {
+      return res.status(401).json({ message: "No refresh token provided" });
+    }
+    const decodeToken = jwt.decode(refreshToken);
+    if (!decodeToken) {
+      return res.status(401).json({ message: "Invalid refresh token" });
+    }
+
+    const user = await prismaService.user.findUnique({
+      where: {
+        unique_id: (decodeToken as jwt.JwtPayload)?.id,
+      },
+    });
+
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    const token = generateToken(user);
+
+    const userResponse = new UserResponse(user)
+
+    res.status(200).json({
+      message: "Refresh token successful",
+      token: token,
+      user: userResponse
+    });
+    
+  } catch (error: any) {
+    console.error("Refresh Token Error", error);
+    res.status(500).json({ message: error.message || "Error in refresh token"})
+  }
+}
+
+export { login, register, getAllUser, refreshToken };
