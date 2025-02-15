@@ -19,7 +19,7 @@ class UserResponse {
   }
 }
 
-const generateToken = (user: User) => {
+const generateToken = (user: User): {access_token: string, refresh_token: string} => {
   const refreshToken = jwt.sign({
     id: user.unique_id 
   }, config.REFRESH_JWT_SECRET,
@@ -32,7 +32,7 @@ const generateToken = (user: User) => {
     { expiresIn: '1h' })
   
   return {
-    acces_token: accesToken,
+    access_token: accesToken,
     refresh_token: refreshToken
   }
 }
@@ -65,13 +65,18 @@ const login = async (req: Request, res: Response): Promise<any> => {
     const userResponse = new UserResponse(existingUser);
 
     const token = generateToken(existingUser)
-    // res.cookie("refresh_token", token.refresh_token, { httpOnly: true });
-    // res.cookie("acces_token", token.acces_token, { httpOnly: true });
+
+    res.cookie("refresh_token", token.refresh_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    })
 
 
     res.status(200).json({
       message: "Login successful",
-      token: token,
+      access_token: token.access_token,
       user: userResponse,
     });
   } catch (error: any) {
@@ -139,7 +144,7 @@ const getAllUser = async (req: Request, res: Response): Promise<any> => {
 
 const refreshToken = async (req: Request, res: Response): Promise<any> => {
   try {
-    let refreshToken = req.query.refresh_token as string;
+    let refreshToken = req.cookies.refresh_token as string;
 
     if (!refreshToken) {
       return res.status(401).json({ message: "No refresh token provided" });
@@ -163,9 +168,16 @@ const refreshToken = async (req: Request, res: Response): Promise<any> => {
 
     const userResponse = new UserResponse(user)
 
+    res.cookie("refresh_token", token.refresh_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    })
+
     res.status(200).json({
       message: "Refresh token successful",
-      token: token,
+      access_token: token.access_token,
       user: userResponse
     });
     
@@ -175,4 +187,8 @@ const refreshToken = async (req: Request, res: Response): Promise<any> => {
   }
 }
 
-export { login, register, getAllUser, refreshToken };
+const logOut = async () => {
+  // try
+}
+
+export { login, register, getAllUser, refreshToken, logOut};

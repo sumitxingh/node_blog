@@ -3,11 +3,14 @@ import config from "./config/config";
 import routes from "./routes/index";
 import logRequest from "./middleware/loggerMiddleware";
 import cors from "cors";
+import cookieParser from "cookie-parser";
+
 
 const PORT = config.PORT;
 
 const app = express();
 
+app.use(cookieParser())
 app.use(
   cors({
     origin: "*", 
