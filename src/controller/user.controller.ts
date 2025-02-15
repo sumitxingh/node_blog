@@ -139,12 +139,12 @@ const getAllUser = async (req: Request, res: Response): Promise<any> => {
 
 const refreshToken = async (req: Request, res: Response): Promise<any> => {
   try {
-    let refreshToken = req.headers['refresh_token'] as string | undefined;
+    let refreshToken = req.query.refresh_token as string;
 
     if (!refreshToken) {
       return res.status(401).json({ message: "No refresh token provided" });
     }
-    const decodeToken = jwt.decode(refreshToken);
+    const decodeToken = jwt.decode(refreshToken as string);
     if (!decodeToken) {
       return res.status(401).json({ message: "Invalid refresh token" });
     }
