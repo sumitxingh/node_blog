@@ -10,20 +10,21 @@ const PORT = config.PORT;
 
 const app = express();
 
-app.use(cookieParser())
 app.use(
   cors({
     origin: "*", 
     credentials: true,
-    allowedHeaders: ["Origin", "X-Requested-With", "Content-Type", "Authorization"], 
-    exposedHeaders: ["Authorization"], 
+    allowedHeaders: ["Origin", "X-Requested-With", "Content-Type", "Authorization", "Set-Cookie"], 
+    exposedHeaders: ["Authorization", "Set-Cookie"], 
     maxAge: 3600, 
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   })
 );
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(logRequest);
+
 
 app.use("/api", routes);
 
