@@ -19,9 +19,9 @@ class UserResponse {
   }
 }
 
-const generateToken = (user: User): {access_token: string, refresh_token: string} => {
+const generateToken = (user: User): { access_token: string, refresh_token: string } => {
   const refreshToken = jwt.sign({
-    id: user.unique_id 
+    id: user.unique_id
   }, config.REFRESH_JWT_SECRET,
     { expiresIn: '7d' })
 
@@ -30,7 +30,7 @@ const generateToken = (user: User): {access_token: string, refresh_token: string
     email: user.email
   }, config.JWT_SECRET,
     { expiresIn: '1h' })
-  
+
   return {
     access_token: accesToken,
     refresh_token: refreshToken
@@ -132,7 +132,7 @@ const getAllUser = async (req: Request, res: Response): Promise<any> => {
         email: true,
       },
     });
-    
+
     res.status(200).json({
       message: "Get all users successfully",
       data: users,
@@ -180,15 +180,16 @@ const refreshToken = async (req: Request, res: Response): Promise<any> => {
       access_token: token.access_token,
       user: userResponse
     });
-    
+
   } catch (error: any) {
     console.error("Refresh Token Error", error);
-    res.status(500).json({ message: error.message || "Error in refresh token"})
+    res.status(500).json({ message: error.message || "Error in refresh token" })
   }
 }
 
-const logOut = async () => {
-  // try
+const logOut = async (req: Request, res: Response) => {
+  res.clearCookie("refresh_token");
+  res.status(200).json({ message: "Logout successful" });
 }
 
-export { login, register, getAllUser, refreshToken, logOut};
+export { login, register, getAllUser, refreshToken, logOut };

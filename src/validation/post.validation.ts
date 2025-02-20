@@ -4,6 +4,10 @@ import { body } from "express-validator";
 export const postCreateValidation = [
   body("title").isLength({ min: 3 }).withMessage("Title is required"),
   body("content").isLength({ min: 10 }).withMessage("Content is required"),
+  body("description")
+    .optional({ checkFalsy: true })
+    .isLength({ min: 10 })
+    .withMessage("Description must be at least 10 characters long"),
   body("excerpt")
     .optional({ checkFalsy: true })
     .isString()
@@ -30,6 +34,10 @@ export const postCreateValidation = [
 export const postUpdateValidation = [
   body("title").optional({ checkFalsy: true }).isLength({ min: 3 }),
   body("content").optional({ checkFalsy: true }).isLength({ min: 10 }),
+  body("description")
+    .optional({ checkFalsy: true })
+    .isLength({ min: 10 })
+    .withMessage("Description must be at least 10 characters long"),
   body("featured_image")
     .optional({ checkFalsy: true })
     .isURL()

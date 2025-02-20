@@ -12,11 +12,11 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:3000", 
+    origin: "http://localhost:3000",
     credentials: true,
-    allowedHeaders: ["Origin", "X-Requested-With", "Content-Type", "Authorization", "Set-Cookie"], 
-    exposedHeaders: ["Authorization", "Set-Cookie"], 
-    maxAge: 3600, 
+    allowedHeaders: ["Origin", "X-Requested-With", "Content-Type", "Authorization", "Set-Cookie"],
+    exposedHeaders: ["Authorization", "Set-Cookie"],
+    maxAge: 3600,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   })
 );

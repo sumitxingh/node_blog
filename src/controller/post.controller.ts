@@ -20,6 +20,7 @@ export const createPost = async (req: Request, res: Response): Promise<any> => {
       category_id,
       tags,
       status,
+      description,
     } = req.body;
 
     console.log({
@@ -31,6 +32,7 @@ export const createPost = async (req: Request, res: Response): Promise<any> => {
       tags,
       status,
       user_id,
+      description,
     });
 
     const slug = title.toLowerCase().replace(/ /g, "-");
@@ -64,6 +66,7 @@ export const createPost = async (req: Request, res: Response): Promise<any> => {
         status,
         user_id,
         category_id: category_id,
+        description,
         tags: tags?.length
           ? { connect: tags.map((tagId: string) => ({ unique_id: tagId })) }
           : undefined,
@@ -88,7 +91,6 @@ export const getAllPosts = async (req: Request, res: Response) => {
       orderBy: { created_at: "desc" },
       omit: {
         user_id: true,
-        updated_at: true,
         category_id: true,
       },
       // where: {
@@ -188,7 +190,7 @@ export const getPostById = async (
       },
     });
 
-    if (!post) return res.status(404).json({ message: "Post not found" });
+    if (!post) return res.status(404).json({ message: "Post not found by this id" });
 
     res
       .status(200)
@@ -214,8 +216,8 @@ export const updatePost = async (req: Request, res: Response) => {
         category_id,
         tags: tags?.length
           ? {
-              set: tags.map((tagId: string) => ({ unique_id: tagId })),
-            }
+            set: tags.map((tagId: string) => ({ unique_id: tagId })),
+          }
           : undefined,
       },
     });
@@ -235,6 +237,35 @@ export const deletePost = async (req: Request, res: Response) => {
     await prismaService.post.delete({ where: { unique_id: id } });
 
     res.status(200).json({ message: "Post deleted successfully" });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getLatestPosts = async (req: Request, res: Response) => {
+  try {
+    const latestPosts = await prismaService.post.findMany({
+      where: { status: "PUBLISHED" },
+      orderBy: { created_at: "desc" },
+      take: 5,
+      include: {
+        user: { select: { name: true } },
+        tags: {
+          select: {
+            name: true,
+            unique_id: true,
+          },
+        },
+        Category: {
+          select: {
+            name: true,
+            unique_id: true,
+          },
+        },
+      },
+    });
+
+    res.status(200).json({ message: "Latest posts retrieved successfully", data: latestPosts });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
