@@ -3,6 +3,7 @@ import {
   createPost,
   deletePost,
   getAllPosts,
+  getLatestPosts,
   getPostById,
   updatePost,
 } from "../controller/post.controller";
@@ -15,6 +16,7 @@ import authorize from "../middleware/authorizeMiddlware";
 const router = Router();
 
 router.get("/all", getAllPosts);
+router.get("/latest", getLatestPosts);
 router.post("/create", authorize, postCreateValidation, createPost);
 router.get("/:id", getPostById);
 router.patch("/:id", postUpdateValidation, updatePost);

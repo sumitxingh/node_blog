@@ -27,6 +27,7 @@ model Post {
   id             Int        @id @default(autoincrement())
   unique_id      String     @unique @default(uuid())
   title          String
+  description    String     @default("No description")
   slug           String     @unique
   content        String
   excerpt        String?
