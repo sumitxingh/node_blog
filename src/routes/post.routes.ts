@@ -15,11 +15,11 @@ import authorize from "../middleware/authorizeMiddlware";
 
 const router = Router();
 
-router.get("/all", getAllPosts);
+router.get("/all", authorize, getAllPosts);
 router.get("/latest", getLatestPosts);
 router.post("/create", authorize, postCreateValidation, createPost);
 router.get("/:id", getPostById);
-router.patch("/:id", postUpdateValidation, updatePost);
-router.delete("/:id", deletePost);
+router.patch("/:id", authorize, postUpdateValidation, updatePost);
+router.delete("/:id", authorize, deletePost);
 
 export default router;

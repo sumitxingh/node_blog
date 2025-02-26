@@ -84,59 +84,25 @@ export const createPost = async (req: Request, res: Response): Promise<any> => {
 export const getAllPosts = async (req: Request, res: Response) => {
   try {
     const { search, page = 1, limit = 10 } = req.body;
+    const user_id = req.body.user.id;
 
     const posts = await prismaService.post.findMany({
       skip: (page - 1) * limit,
       take: limit,
       orderBy: { created_at: "desc" },
+      where: {
+        user_id: user_id,
+      },
       omit: {
         user_id: true,
         category_id: true,
       },
-      // where: {
-      //   OR: [
-      //     { title: { contains: search, mode: "insensitive" } },
-      //     { content: { contains: search, mode: "insensitive" } },
-      //     { Category: { name: { contains: search, mode: "insensitive" } } },
-      //   ],
-      // },
-      // include: {
-      //   user: { select: { name: true } },
-      //   tags: {
-      //     select: {
-      //       name: true,
-      //       unique_id: true,
-      //     },
-      //   },
-      //   Category: {
-      //     select: {
-      //       name: true,
-      //       unique_id: true,
-      //     },
-      //   },
-      //   Comment: {
-      //     select: {
-      //       unique_id: true,
-      //       content: true,
-      //       created_at: true,
-      //       user: {
-      //         select: {
-      //           name: true,
-      //         },
-      //       },
-      //     },
-      //   },
-      // },
     });
 
     const totalPosts = await prismaService.post.count({
-      // where: {
-      //   OR: [
-      //     { title: { contains: search, mode: "insensitive" } },
-      //     { content: { contains: search, mode: "insensitive" } },
-      //     { Category: { name: { contains: search, mode: "insensitive" } } },
-      //   ],
-      // },
+      where: {
+        user_id: user_id,
+      },
     });
 
     res.status(200).json({
