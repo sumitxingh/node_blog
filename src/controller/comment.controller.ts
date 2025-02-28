@@ -6,14 +6,9 @@ export const createComment = async (
   res: Response
 ): Promise<any> => {
   try {
-    const { content, user_id, post_id } = req.body;
-    console.log({ content, user_id, post_id });
-    // validate user
-    const user = await prismaService.user.findUnique({
-      where: { unique_id: user_id },
-    });
+    const { content, post_id, user } = req.body;
 
-    if (!user) return res.status(400).json({ message: "Invalid user" });
+    const user_id = user.id;
 
     const post = await prismaService.post.findUnique({
       where: { unique_id: post_id },
@@ -38,6 +33,7 @@ export const getCommentsByPost = async (req: Request, res: Response) => {
     const { post_id } = req.params;
 
     const comments = await prismaService.comment.findMany({
+      orderBy: { created_at: "desc" },
       where: { post_id: post_id },
       include: { user: { select: { name: true } } },
     });
