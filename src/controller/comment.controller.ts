@@ -33,7 +33,7 @@ export const getCommentsByPost = async (req: Request, res: Response) => {
     const { post_id } = req.params;
 
     const comments = await prismaService.comment.findMany({
-      orderBy: { created_at: "desc" },
+      orderBy: { id: "desc" },
       where: { post_id: post_id },
       include: { user: { select: { name: true } } },
     });
@@ -53,6 +53,22 @@ export const deleteComment = async (req: Request, res: Response) => {
     await prismaService.comment.delete({ where: { unique_id: id } });
 
     res.status(200).json({ message: "Comment deleted successfully" });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const updateComment = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { content } = req.body;
+
+    const comment = await prismaService.comment.update({
+      where: { unique_id: id },
+      data: { content },
+    });
+
+    res.status(200).json({ message: "Comment updated successfully", data: comment });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
