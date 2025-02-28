@@ -24,23 +24,24 @@ model User {
 }
 
 model Post {
-  id            Int        @id @default(autoincrement())
-  unique_id     String     @unique @default(uuid())
-  title         String
-  slug          String     @unique
-  content       String
-  excerpt       String?
-  featuredImage String?
-  status        PostStatus @default(DRAFT) // Enum for published status
-  user_id       String
-  user          User       @relation(fields: [user_id], references: [unique_id])
-  tags          Tag[]
-  Comment       Comment[]
-  Category      Category?  @relation(fields: [category_id], references: [unique_id])
-  category_id   String?
-  is_active     Boolean    @default(true)
-  created_at    DateTime   @default(now())
-  updated_at    DateTime   @updatedAt
+  id             Int        @id @default(autoincrement())
+  unique_id      String     @unique @default(uuid())
+  title          String
+  description    String     @default("No description")
+  slug           String     @unique
+  content        String
+  excerpt        String?
+  featured_image String?
+  status         PostStatus @default(DRAFT)
+  user_id        String
+  user           User       @relation(fields: [user_id], references: [unique_id])
+  tags           Tag[]
+  Comment        Comment[]
+  Category       Category?  @relation(fields: [category_id], references: [unique_id])
+  category_id    String?
+  is_active      Boolean    @default(true)
+  created_at     DateTime   @default(now())
+  updated_at     DateTime   @updatedAt
 
   @@map("post")
 }
@@ -49,10 +50,10 @@ model Comment {
   id         Int      @id @default(autoincrement())
   unique_id  String   @unique @default(uuid())
   content    String
-  user_id    Int
-  post_id    Int
-  user       User     @relation(fields: [user_id], references: [id])
-  post       Post     @relation(fields: [post_id], references: [id])
+  user_id    String
+  post_id    String
+  user       User     @relation(fields: [user_id], references: [unique_id])
+  post       Post     @relation(fields: [post_id], references: [unique_id])
   is_active  Boolean  @default(true)
   updated_at DateTime @updatedAt
   created_at DateTime @default(now())
@@ -67,6 +68,8 @@ model Tag {
   posts      Post[]
   updated_at DateTime @updatedAt
   created_at DateTime @default(now())
+
+  @@map("tag")
 }
 
 model Category {
@@ -76,6 +79,8 @@ model Category {
   Post       Post[]
   updated_at DateTime @updatedAt
   created_at DateTime @default(now())
+
+  @@map("category")
 }
 
 enum Role {
@@ -88,5 +93,3 @@ enum PostStatus {
   PUBLISHED
   ARCHIVED
 }
-
-//multi telent model

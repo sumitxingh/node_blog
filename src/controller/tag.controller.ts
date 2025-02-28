@@ -1,9 +1,15 @@
 import { Request, Response } from "express";
-import prismaService from "../prisma/index";
+import prismaService from "../prisma";
 
 export const createTag = async (req: Request, res: Response) => {
   try {
     const { name } = req.body;
+
+    const exitingTag = await prismaService.tag.findUnique({
+      where: { name },
+    });
+
+    if (exitingTag) throw new Error("Tag already exists");
 
     const newTag = await prismaService.tag.create({
       data: { name },
@@ -30,6 +36,12 @@ export const getAllTags = async (req: Request, res: Response) => {
 export const deleteTag = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+
+    const exitingTag = await prismaService.tag.findUnique({
+      where: { unique_id: id }
+    });
+
+    if (!exitingTag) throw new Error("Tag not found");
 
     await prismaService.tag.delete({ where: { unique_id: id } });
 

@@ -1,9 +1,20 @@
 import { Request, Response } from "express";
-import prismaService from "../prisma/index";
+import prismaService from "../prisma";
 
-export const createComment = async (req: Request, res: Response) => {
+export const createComment = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
   try {
-    const { content, user_id, post_id } = req.body;
+    const { content, post_id, user } = req.body;
+
+    const user_id = user.id;
+
+    const post = await prismaService.post.findUnique({
+      where: { unique_id: post_id },
+    });
+
+    if (!post) return res.status(400).json({ message: "Post not found" });
 
     const newComment = await prismaService.comment.create({
       data: { content, user_id, post_id },
@@ -22,7 +33,8 @@ export const getCommentsByPost = async (req: Request, res: Response) => {
     const { post_id } = req.params;
 
     const comments = await prismaService.comment.findMany({
-      where: { post_id: Number(post_id) },
+      orderBy: { id: "desc" },
+      where: { post_id: post_id },
       include: { user: { select: { name: true } } },
     });
 
@@ -41,6 +53,22 @@ export const deleteComment = async (req: Request, res: Response) => {
     await prismaService.comment.delete({ where: { unique_id: id } });
 
     res.status(200).json({ message: "Comment deleted successfully" });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const updateComment = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { content } = req.body;
+
+    const comment = await prismaService.comment.update({
+      where: { unique_id: id },
+      data: { content },
+    });
+
+    res.status(200).json({ message: "Comment updated successfully", data: comment });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }

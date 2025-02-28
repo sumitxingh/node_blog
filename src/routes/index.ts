@@ -5,7 +5,7 @@ import userRoutes from "./user.routes";
 import categoryRoutes from "./category.routes";
 import tagRoutes from "./tag.routes";
 import postRoutes from "./post.routes";
-import commentRoutes from "./post.routes";
+import commentRoutes from "./comment.routes";
 
 router.use("/user", userRoutes);
 router.use("/category", categoryRoutes);
