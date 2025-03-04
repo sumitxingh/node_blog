@@ -153,6 +153,12 @@ export const getPostById = async (
             },
           },
         },
+        _count: {
+          select: {
+            PostLike: true,
+            Comment: true,
+          },
+        },
       },
     });
 

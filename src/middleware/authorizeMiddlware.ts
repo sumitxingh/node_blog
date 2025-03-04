@@ -18,7 +18,9 @@ const authorize = (req: Request, res: Response, next: NextFunction): void => {
     req.body.user = decode;
     next();
   } catch (error: any) {
-    throw new Error(error.message);
+    console.log(error);
+    res.clearCookie("refresh_token");
+    res.status(401).json({ message: "Unauthorized" });
   }
 };
 
