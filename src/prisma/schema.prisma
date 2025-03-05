@@ -75,7 +75,7 @@ model CommentLike {
   comment_id String
   is_active  Boolean @default(true)
   user       User    @relation(fields: [user_id], references: [unique_id])
-  comment    Comment @relation(fields: [comment_id], references: [unique_id])
+  comment    Comment @relation(fields: [comment_id], references: [unique_id], onDelete: Cascade)
 
   @@map("comment_like")
 }
