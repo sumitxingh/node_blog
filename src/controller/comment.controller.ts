@@ -33,7 +33,7 @@ export const getCommentsByPost = async (req: Request, res: Response) => {
     const { post_id } = req.params;
     const { user } = req.body;
 
-    const user_id = user.id;
+    const user_id = user?.id || null;
 
 
     const comments = await prismaService.comment.findMany({
@@ -45,17 +45,22 @@ export const getCommentsByPost = async (req: Request, res: Response) => {
             likes: true,
           },
         },
-        likes: {
+        likes: user_id ? {
           where: {
             user_id: user_id,
           },
           select: {
             user_id: true,
           },
-        },
+        } : undefined,
         user: { select: { name: true } },
         children: {
           include: {
+            likes: user_id ? {
+              where: {
+                user_id: user_id,
+              },
+            } : undefined,
             _count: {
               select: {
                 likes: true,

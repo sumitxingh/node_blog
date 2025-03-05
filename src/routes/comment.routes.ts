@@ -12,7 +12,7 @@ import authorize from "../middleware/authorizeMiddlware";
 
 const router = Router();
 
-router.get("/:post_id", getCommentsByPost);
+router.get("/:post_id", authorize, getCommentsByPost);
 router.post("/create", commentCreateValidation, authorize, createComment);
 router.delete("/:id", authorize, deleteComment);
 router.put("/:id", authorize, updateComment);
