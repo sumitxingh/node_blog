@@ -8,17 +8,19 @@ datasource db {
 }
 
 model User {
-  id         Int       @id @default(autoincrement())
-  unique_id  String    @unique @default(uuid())
-  email      String    @unique
-  name       String
-  password   String
-  role       Role      @default(USER)
-  posts      Post[]
-  Comment    Comment[]
-  is_active  Boolean   @default(true)
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
+  id          Int           @id @default(autoincrement())
+  unique_id   String        @unique @default(uuid())
+  email       String        @unique
+  name        String
+  password    String
+  role        Role          @default(USER)
+  posts       Post[]
+  Comment     Comment[]
+  is_active   Boolean       @default(true)
+  created_at  DateTime      @default(now())
+  updated_at  DateTime      @updatedAt
+  CommentLike CommentLike[]
+  PostLike    PostLike[]
 
   @@map("user")
 }
@@ -42,23 +44,52 @@ model Post {
   is_active      Boolean    @default(true)
   created_at     DateTime   @default(now())
   updated_at     DateTime   @updatedAt
+  PostLike       PostLike[]
 
   @@map("post")
 }
 
 model Comment {
-  id         Int      @id @default(autoincrement())
-  unique_id  String   @unique @default(uuid())
+  id         Int           @id @default(autoincrement())
+  unique_id  String        @unique @default(uuid())
   content    String
   user_id    String
   post_id    String
-  user       User     @relation(fields: [user_id], references: [unique_id])
-  post       Post     @relation(fields: [post_id], references: [unique_id])
-  is_active  Boolean  @default(true)
-  updated_at DateTime @updatedAt
-  created_at DateTime @default(now())
+  parent_id  String?
+  children   Comment[]     @relation("CommentToComment")
+  parent     Comment?      @relation("CommentToComment", fields: [parent_id], references: [unique_id], onDelete: Cascade)
+  likes      CommentLike[]
+  user       User          @relation(fields: [user_id], references: [unique_id])
+  post       Post          @relation(fields: [post_id], references: [unique_id])
+  is_active  Boolean       @default(true)
+  updated_at DateTime      @updatedAt
+  created_at DateTime      @default(now())
 
   @@map("comment")
+}
+
+model CommentLike {
+  id         Int     @id @default(autoincrement())
+  unique_id  String  @unique @default(uuid())
+  user_id    String
+  comment_id String
+  is_active  Boolean @default(true)
+  user       User    @relation(fields: [user_id], references: [unique_id])
+  comment    Comment @relation(fields: [comment_id], references: [unique_id], onDelete: Cascade)
+
+  @@map("comment_like")
+}
+
+model PostLike {
+  id        Int     @id @default(autoincrement())
+  unique_id String  @unique @default(uuid())
+  user_id   String
+  post_id   String
+  is_active Boolean @default(true)
+  user      User    @relation(fields: [user_id], references: [unique_id])
+  post      Post    @relation(fields: [post_id], references: [unique_id])
+
+  @@map("post_like")
 }
 
 model Tag {
