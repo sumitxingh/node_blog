@@ -4,6 +4,7 @@ import config from "../config/config";
 
 const OptionalAuthorizeUrl = [
   { urlRegex: /^\/api\/comment\/[a-f0-9-]{36}$/, method: "GET" },
+  { urlRegex: /^\/api\/post\/[a-f0-9-]{36}$/, method: "GET" },
 ];
 
 const authorize = (req: Request, res: Response, next: NextFunction): void => {

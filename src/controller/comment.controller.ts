@@ -51,6 +51,7 @@ export const getCommentsByPost = async (req: Request, res: Response) => {
           },
           select: {
             user_id: true,
+            unique_id: true,
           },
         } : undefined,
         user: { select: { name: true } },
@@ -59,6 +60,10 @@ export const getCommentsByPost = async (req: Request, res: Response) => {
             likes: user_id ? {
               where: {
                 user_id: user_id,
+              },
+              select: {
+                user_id: true,
+                unique_id: true,
               },
             } : undefined,
             _count: {
