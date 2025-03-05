@@ -125,6 +125,7 @@ export const getPostById = async (
 ): Promise<any> => {
   try {
     const { id } = req.params;
+    const user_id = req.body.user.id;
     const post = await prismaService.post.findUnique({
       where: { unique_id: id },
       include: {
@@ -151,6 +152,21 @@ export const getPostById = async (
                 name: true,
               },
             },
+          },
+        },
+        PostLike: {
+          where: {
+            user_id: user_id,
+          },
+          select: {
+            user_id: true,
+            unique_id: true,
+          },
+        },
+        _count: {
+          select: {
+            PostLike: true,
+            Comment: true,
           },
         },
       },

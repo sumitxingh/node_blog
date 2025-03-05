@@ -18,7 +18,7 @@ const router = Router();
 router.get("/all", authorize, getAllPosts);
 router.get("/latest", getLatestPosts);
 router.post("/create", authorize, postCreateValidation, createPost);
-router.get("/:id", getPostById);
+router.get("/:id", authorize, getPostById);
 router.patch("/:id", authorize, postUpdateValidation, updatePost);
 router.delete("/:id", authorize, deletePost);
 
