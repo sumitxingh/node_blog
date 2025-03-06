@@ -1,9 +1,9 @@
 import express, { Request, Response } from "express";
 import config from "./config/config";
 import routes from "./routes/index";
-import logRequest from "./middleware/loggerMiddleware";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import pinoHttp from "pino-http";
 
 
 const PORT = config.PORT;
@@ -23,8 +23,15 @@ app.use(
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(logRequest);
-
+app.use(pinoHttp({
+  level: "info",
+  transport: {
+    target: "pino-pretty",
+    options: {
+      colorize: true,
+    },
+  },
+}));
 
 app.use("/api", routes);
 
